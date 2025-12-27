@@ -1,0 +1,22 @@
+run:
+  timeout: 5m
+  tests: true
+
+linters:
+  enable:
+    - gofmt
+    - govet
+    - errcheck
+    - staticcheck
+    - gosimple
+    - unused
+    - ineffassign
+    - misspell
+    - gocyclo
+
+linters-settings:
+  gocyclo:
+    min-complexity: 10
+
+issues:
+  exclude-use-default: false
