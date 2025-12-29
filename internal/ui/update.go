@@ -1,0 +1,97 @@
+package ui
+
+import (
+	"github.com/Kdaito/gelete/internal/git"
+	tea "github.com/charmbracelet/bubbletea"
+)
+
+// Update handles messages and updates the model state
+func (m AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch m.State {
+		case StateSelection:
+			return m.handleSelectionInput(msg)
+		case StateConfirmation:
+			return m.handleConfirmationInput(msg)
+		case StateDone:
+			return m, tea.Quit
+		}
+	}
+
+	return m, nil
+}
+
+// handleSelectionInput handles keyboard input in the selection state
+func (m AppModel) handleSelectionInput(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	switch msg.String() {
+	case "q", "ctrl+c":
+		return m, tea.Quit
+
+	case "up", "k":
+		if m.CursorIndex > 0 {
+			m.CursorIndex--
+		}
+
+	case "down", "j":
+		if m.CursorIndex < len(m.Branches)-1 {
+			m.CursorIndex++
+		}
+
+	case " ", "enter":
+		if len(m.Branches) > 0 {
+			branch := m.Branches[m.CursorIndex]
+			m.Selected[branch] = !m.Selected[branch]
+		}
+
+	case "d":
+		// Check if any branches are selected
+		hasSelection := false
+		for _, selected := range m.Selected {
+			if selected {
+				hasSelection = true
+				break
+			}
+		}
+
+		if hasSelection {
+			m.State = StateConfirmation
+		}
+	}
+
+	return m, nil
+}
+
+// handleConfirmationInput handles keyboard input in the confirmation state
+func (m AppModel) handleConfirmationInput(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
+	switch msg.String() {
+	case "y":
+		m.State = StateDeleting
+		return m, m.deleteBranches
+
+	case "n", "q", "ctrl+c":
+		m.State = StateSelection
+	}
+
+	return m, nil
+}
+
+// deleteBranches executes branch deletion and returns a command
+func (m AppModel) deleteBranches() tea.Msg {
+	m.DeletedCount = 0
+	m.FailedBranches = make(map[string]string)
+
+	for _, branch := range m.Branches {
+		if m.Selected[branch] {
+			err := git.DeleteBranch(branch)
+			if err != nil {
+				m.FailedBranches[branch] = err.Error()
+			} else {
+				m.DeletedCount++
+			}
+		}
+	}
+
+	m.State = StateDone
+	return m
+}

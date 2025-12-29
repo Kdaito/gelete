@@ -39,7 +39,8 @@ func TestContract_RepositoryValidation(t *testing.T) {
 	require.NoError(t, err, "Failed to build gelete")
 
 	// Run gelete in non-git directory
-	cmd := exec.Command("./gelete-test")
+	binaryPath := getProjectRoot(t) + "/gelete-test"
+	cmd := exec.Command(binaryPath)
 	cmd.Dir = dir
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
@@ -124,7 +125,8 @@ func TestContract_NoDeletableBranches(t *testing.T) {
 	require.NoError(t, err, "Failed to build gelete")
 
 	// Run gelete in repo with only one branch
-	cmd := exec.Command("./gelete-test")
+	binaryPath := getProjectRoot(t) + "/gelete-test"
+	cmd := exec.Command(binaryPath)
 	cmd.Dir = repo
 	var stdout bytes.Buffer
 	cmd.Stdout = &stdout
@@ -136,7 +138,7 @@ func TestContract_NoDeletableBranches(t *testing.T) {
 
 	// Should display appropriate message
 	stdoutStr := stdout.String()
-	assert.Contains(t, stdoutStr, "No branches available", "Should indicate no branches available")
+	assert.Contains(t, stdoutStr, "No branches to delete", "Should indicate no branches to delete")
 }
 
 // getProjectRoot returns the path to the project root directory.
