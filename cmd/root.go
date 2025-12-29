@@ -50,11 +50,12 @@ func run(cmd *cobra.Command, args []string) error {
 
 	// Initialize the UI model
 	model := ui.AppModel{
-		Branches:       branches,
-		Selected:       make(map[string]bool),
-		CursorIndex:    0,
-		State:          ui.StateSelection,
-		FailedBranches: make(map[string]string),
+		Branches:         branches,
+		Selected:         make(map[string]bool),
+		CursorIndex:      0,
+		State:            ui.StateSelection,
+		FailedBranches:   make(map[string]string),
+		UnmergedBranches: make(map[string]string),
 	}
 
 	// Start the bubbletea program

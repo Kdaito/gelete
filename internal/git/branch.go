@@ -54,3 +54,18 @@ func DeleteBranch(branchName string) error {
 
 	return nil
 }
+
+// ForceDeleteBranch forcefully deletes the specified git branch (git branch -D).
+// This bypasses safety checks and will delete branches with unmerged changes.
+// Use with caution. Returns an error if the branch doesn't exist.
+func ForceDeleteBranch(branchName string) error {
+	cmd := exec.Command("git", "branch", "-D", branchName)
+	output, err := cmd.CombinedOutput()
+
+	if err != nil {
+		outputStr := strings.TrimSpace(string(output))
+		return fmt.Errorf("failed to force delete branch '%s': %s", branchName, outputStr)
+	}
+
+	return nil
+}

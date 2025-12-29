@@ -252,3 +252,69 @@ func TestDeleteBranch_NonExistent(t *testing.T) {
 	err = git.DeleteBranch("does-not-exist")
 	assert.Error(t, err, "DeleteBranch should fail for non-existent branch")
 }
+
+// TestForceDeleteBranch_Success tests force deletion of a branch.
+func TestForceDeleteBranch_Success(t *testing.T) {
+	repo := setupTestRepo(t)
+
+	originalDir, _ := os.Getwd()
+	defer os.Chdir(originalDir)
+	err := os.Chdir(repo)
+	require.NoError(t, err)
+
+	// Create a test branch
+	exec.Command("git", "branch", "test-force").Run()
+
+	// Force delete the branch
+	err = git.ForceDeleteBranch("test-force")
+	assert.NoError(t, err, "ForceDeleteBranch should succeed")
+
+	// Verify branch is deleted
+	branches, _ := git.ListBranches()
+	assert.NotContains(t, branches, "test-force", "Branch should be deleted")
+}
+
+// TestForceDeleteBranch_UnmergedBranch tests force deletion of an unmerged branch.
+func TestForceDeleteBranch_UnmergedBranch(t *testing.T) {
+	repo := setupTestRepo(t)
+
+	originalDir, _ := os.Getwd()
+	defer os.Chdir(originalDir)
+	err := os.Chdir(repo)
+	require.NoError(t, err)
+
+	// Get current branch
+	currentBranch, err := git.GetCurrentBranch()
+	require.NoError(t, err)
+
+	// Create a branch with unmerged changes
+	exec.Command("git", "checkout", "-b", "unmerged").Run()
+	exec.Command("git", "commit", "--allow-empty", "-m", "Unmerged commit").Run()
+	exec.Command("git", "checkout", currentBranch).Run()
+
+	// Safe delete should fail
+	err = git.DeleteBranch("unmerged")
+	assert.Error(t, err, "DeleteBranch should fail for unmerged branch")
+
+	// Force delete should succeed
+	err = git.ForceDeleteBranch("unmerged")
+	assert.NoError(t, err, "ForceDeleteBranch should succeed for unmerged branch")
+
+	// Verify branch is deleted
+	branches, _ := git.ListBranches()
+	assert.NotContains(t, branches, "unmerged", "Branch should be deleted")
+}
+
+// TestForceDeleteBranch_NonExistent tests force deleting a non-existent branch.
+func TestForceDeleteBranch_NonExistent(t *testing.T) {
+	repo := setupTestRepo(t)
+
+	originalDir, _ := os.Getwd()
+	defer os.Chdir(originalDir)
+	err := os.Chdir(repo)
+	require.NoError(t, err)
+
+	// Try to force delete non-existent branch
+	err = git.ForceDeleteBranch("does-not-exist")
+	assert.Error(t, err, "ForceDeleteBranch should fail for non-existent branch")
+}

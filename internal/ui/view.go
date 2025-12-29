@@ -60,6 +60,25 @@ func (m AppModel) View() string {
 		b.WriteString("\n\n")
 		b.WriteString(HelpStyle.Render("y: confirm • n: cancel"))
 
+	case StateForceConfirmation:
+		b.WriteString(ErrorStyle.Render("⚠ Warning: Unmerged Branches Detected"))
+		b.WriteString("\n\n")
+
+		b.WriteString("The following branches have unmerged changes:\n\n")
+
+		// List unmerged branches with error messages
+		for branch, errMsg := range m.UnmergedBranches {
+			b.WriteString(WarningStyle.Render(fmt.Sprintf("  • %s\n", branch)))
+			b.WriteString(HelpStyle.Render(fmt.Sprintf("    %s\n", errMsg)))
+		}
+
+		b.WriteString("\n")
+		b.WriteString(WarningStyle.Render(fmt.Sprintf("Force delete will permanently remove %d unmerged branch(es).", len(m.UnmergedBranches))))
+		b.WriteString("\n")
+		b.WriteString(ErrorStyle.Render("This action cannot be undone!"))
+		b.WriteString("\n\n")
+		b.WriteString(HelpStyle.Render("y: force delete • n: cancel and skip these branches"))
+
 	case StateDeleting:
 		b.WriteString(TitleStyle.Render("Deleting branches..."))
 		b.WriteString("\n\n")

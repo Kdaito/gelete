@@ -43,3 +43,4 @@ coverage.txt
 
 # Logs
 *.log
+*-test

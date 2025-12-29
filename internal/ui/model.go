@@ -12,6 +12,8 @@ const (
 	StateSelection AppState = iota
 	// StateConfirmation: User is confirming deletion
 	StateConfirmation
+	// StateForceConfirmation: User is confirming force deletion of unmerged branches
+	StateForceConfirmation
 	// StateDeleting: Deletion is in progress
 	StateDeleting
 	// StateDone: Deletion complete or cancelled
@@ -43,6 +45,10 @@ type AppModel struct {
 
 	// FailedBranches tracks branches that failed to delete with error messages
 	FailedBranches map[string]string
+
+	// UnmergedBranches tracks branches that failed due to unmerged changes
+	// and are candidates for force deletion
+	UnmergedBranches map[string]string
 }
 
 // Init initializes the bubbletea model
