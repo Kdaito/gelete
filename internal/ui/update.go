@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/Kdaito/gelete/internal/git"
@@ -97,6 +98,7 @@ func (m AppModel) handleForceConfirmationInput(msg tea.KeyMsg) (tea.Model, tea.C
 
 // deleteBranches executes branch deletion and returns a command
 // If unmerged branches are detected, transitions to StateForceConfirmation
+// Handles worktree removal before branch deletion (FR-013)
 func (m AppModel) deleteBranches() tea.Msg {
 	m.DeletedCount = 0
 	m.FailedBranches = make(map[string]string)
@@ -104,6 +106,24 @@ func (m AppModel) deleteBranches() tea.Msg {
 
 	for _, branch := range m.Branches {
 		if m.Selected[branch] {
+			// Check if branch has a worktree and remove it first (FR-013)
+			if worktreePath, hasWorktree := m.BranchWorktrees[branch]; hasWorktree {
+				// Try normal removal first
+				err := git.RemoveWorktree(worktreePath)
+				if err != nil {
+					// If locked, try force removal (FR-014)
+					if strings.Contains(err.Error(), "locked") {
+						err = git.ForceRemoveWorktree(worktreePath)
+					}
+
+					if err != nil {
+						m.FailedBranches[branch] = fmt.Sprintf("worktree removal failed: %s", err.Error())
+						continue
+					}
+				}
+			}
+
+			// Now attempt to delete the branch
 			err := git.DeleteBranch(branch)
 			if err != nil {
 				// Check if error is due to unmerged changes

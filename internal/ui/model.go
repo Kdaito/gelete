@@ -49,6 +49,9 @@ type AppModel struct {
 	// UnmergedBranches tracks branches that failed due to unmerged changes
 	// and are candidates for force deletion
 	UnmergedBranches map[string]string
+
+	// BranchWorktrees maps branch names to their worktree paths (if they have worktrees)
+	BranchWorktrees map[string]string
 }
 
 // Init initializes the bubbletea model

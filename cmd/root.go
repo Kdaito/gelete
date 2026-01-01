@@ -48,6 +48,20 @@ func run(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
+	// Get list of worktrees (FR-010)
+	worktrees, err := git.ListWorktrees()
+	if err != nil {
+		return fmt.Errorf("failed to list worktrees: %w", err)
+	}
+
+	// Build branch -> worktree path mapping
+	branchWorktrees := make(map[string]string)
+	for _, wt := range worktrees {
+		if wt.Branch != "" {
+			branchWorktrees[wt.Branch] = wt.Path
+		}
+	}
+
 	// Initialize the UI model
 	model := ui.AppModel{
 		Branches:         branches,
@@ -56,6 +70,7 @@ func run(cmd *cobra.Command, args []string) error {
 		State:            ui.StateSelection,
 		FailedBranches:   make(map[string]string),
 		UnmergedBranches: make(map[string]string),
+		BranchWorktrees:  branchWorktrees,
 	}
 
 	// Start the bubbletea program

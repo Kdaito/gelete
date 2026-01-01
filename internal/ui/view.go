@@ -35,7 +35,13 @@ func (m AppModel) View() string {
 				style = SelectedItemStyle
 			}
 
-			b.WriteString(fmt.Sprintf("%s%s %s\n", cursor, checkbox, style.Render(branch)))
+			// Add [worktree] tag if branch has a worktree
+			branchDisplay := branch
+			if _, hasWorktree := m.BranchWorktrees[branch]; hasWorktree {
+				branchDisplay = branch + " " + WarningStyle.Render("[worktree]")
+			}
+
+			b.WriteString(fmt.Sprintf("%s%s %s\n", cursor, checkbox, style.Render(branchDisplay)))
 		}
 
 		// Show help text
