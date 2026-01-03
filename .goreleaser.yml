@@ -1,0 +1,126 @@
+# GoReleaser configuration for gelete
+# https://goreleaser.com
+
+version: 2
+
+before:
+  hooks:
+    - go mod tidy
+    - go test ./...
+
+builds:
+  - id: gelete
+    main: .
+    binary: gelete
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X github.com/Kdaito/gelete/cmd.Version={{.Version}}
+    flags:
+      - -trimpath
+
+archives:
+  - id: gelete
+    format: tar.gz
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- .Version }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - LICENSE*
+      - README*
+      - CHANGELOG*
+
+checksum:
+  name_template: 'checksums.txt'
+  algorithm: sha256
+
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  sort: asc
+  use: github
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+      - '^chore:'
+      - 'merge conflict'
+      - Merge pull request
+      - Merge remote-tracking branch
+      - Merge branch
+  groups:
+    - title: Features
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 0
+    - title: 'Bug fixes'
+      regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
+      order: 1
+    - title: 'Performance improvements'
+      regexp: '^.*?perf(\([[:word:]]+\))??!?:.+$'
+      order: 2
+    - title: 'Refactors'
+      regexp: '^.*?refactor(\([[:word:]]+\))??!?:.+$'
+      order: 3
+    - title: Others
+      order: 999
+
+brews:
+  - name: gelete
+    repository:
+      owner: Kdaito
+      name: homebrew-gelete
+      branch: main
+      token: "{{ .Env.GITHUB_TOKEN }}"
+    folder: Formula
+    homepage: https://github.com/Kdaito/gelete
+    description: "Interactive git branch deletion tool with TUI"
+    license: MIT
+    test: |
+      system "#{bin}/gelete --version"
+    install: |
+      bin.install "gelete"
+
+release:
+  github:
+    owner: Kdaito
+    name: gelete
+  draft: false
+  prerelease: auto
+  mode: append
+  header: |
+    ## gelete {{ .Tag }} ({{ .Date }})
+
+    Interactive git branch deletion tool.
+
+    ### Installation
+
+    **Homebrew (macOS/Linux)**:
+    ```bash
+    brew install Kdaito/gelete/gelete
+    ```
+
+    **Download Binary**:
+    Download the appropriate binary for your platform from the assets below.
+
+  footer: |
+    **Full Changelog**: https://github.com/Kdaito/gelete/compare/{{ .PreviousTag }}...{{ .Tag }}
+
+announce:
+  skip: true
