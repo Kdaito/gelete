@@ -34,16 +34,22 @@ Download the latest release for your platform from the [releases page](https://g
 - macOS (amd64, arm64)
 - Windows (amd64, arm64)
 
-### Homebrew (Coming Soon)
-
-After the first release, you'll be able to install via Homebrew:
+### Homebrew (macOS/Linux)
 
 ```bash
-# This will be available after v0.1.0 release
-brew install Kdaito/gelete/gelete
+brew tap Kdaito/tap
+brew install gelete
 ```
 
-> **Note**: The Homebrew formula will be automatically generated and published to [homebrew-gelete](https://github.com/Kdaito/homebrew-gelete) repository upon release.
+#### macOS Additional Setup
+
+After installation on macOS, you may need to remove the quarantine attribute:
+
+```bash
+xattr -d com.apple.quarantine $(which gelete)
+```
+
+> **Note**: The path can vary depending on your environment. Use `which gelete` to find the exact location.
 
 ## Usage
 

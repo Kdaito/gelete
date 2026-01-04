@@ -110,7 +110,8 @@ release:
 
     **Homebrew (macOS/Linux)**:
     ```bash
-    brew install Kdaito/gelete/gelete
+    brew tap Kdaito/tap
+    brew install gelete
     ```
 
     **Download Binary**:
