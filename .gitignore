@@ -44,3 +44,5 @@ coverage.txt
 # Logs
 *.log
 *-test
+
+dist

@@ -29,7 +29,6 @@ builds:
 
 archives:
   - id: gelete
-    format: tar.gz
     name_template: >-
       {{ .ProjectName }}_
       {{- .Version }}_
@@ -38,9 +37,12 @@ archives:
       {{- else if eq .Arch "386" }}i386
       {{- else }}{{ .Arch }}{{ end }}
       {{- if .Arm }}v{{ .Arm }}{{ end }}
+    formats:
+      - tar.gz
     format_overrides:
       - goos: windows
-        format: zip
+        formats:
+          - zip
     files:
       - LICENSE*
       - README*
@@ -51,7 +53,7 @@ checksum:
   algorithm: sha256
 
 snapshot:
-  name_template: "{{ incpatch .Version }}-next"
+  version_template: "{{ incpatch .Version }}-next"
 
 changelog:
   sort: asc
@@ -81,21 +83,16 @@ changelog:
     - title: Others
       order: 999
 
-brews:
+homebrew_casks:
   - name: gelete
     repository:
       owner: Kdaito
-      name: homebrew-gelete
+      name: homebrew-tap
       branch: main
       token: "{{ .Env.GITHUB_TOKEN }}"
-    folder: Formula
     homepage: https://github.com/Kdaito/gelete
     description: "Interactive git branch deletion tool with TUI"
     license: MIT
-    test: |
-      system "#{bin}/gelete --version"
-    install: |
-      bin.install "gelete"
 
 release:
   github:
