@@ -58,16 +58,7 @@ func (m AppModel) handleSelectionInput(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		}
 
 	case "d":
-		// Check if any branches are selected
-		hasSelection := false
-		for _, selected := range m.Selected {
-			if selected {
-				hasSelection = true
-				break
-			}
-		}
-
-		if hasSelection {
+		if m.hasSelectedBranches() {
 			m.State = StateConfirmation
 		}
 	}
@@ -170,6 +161,15 @@ func (m AppModel) forceDeleteBranches() tea.Msg {
 
 	m.State = StateDone
 	return forceDeletionResultMsg(m)
+}
+
+func (m AppModel) hasSelectedBranches() bool {
+	for _, selected := range m.Selected {
+		if selected {
+			return true
+		}
+	}
+	return false
 }
 
 // isUnmergedError checks if an error message indicates unmerged changes
