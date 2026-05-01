@@ -42,59 +42,48 @@ func ListWorktrees() ([]Worktree, error) {
 func parseWorktrees(output string) []Worktree {
 	var worktrees []Worktree
 	lines := strings.Split(output, "\n")
-
-	var currentWorktree *Worktree
+	var current *Worktree
 
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
-
 		if line == "" {
-			// Empty line marks end of a worktree entry
-			if currentWorktree != nil {
-				worktrees = append(worktrees, *currentWorktree)
-				currentWorktree = nil
+			if current != nil {
+				worktrees = append(worktrees, *current)
+				current = nil
 			}
 			continue
 		}
-
 		parts := strings.SplitN(line, " ", 2)
-		if len(parts) < 2 {
-			continue
-		}
-
-		key := parts[0]
-		value := parts[1]
-
-		switch key {
-		case "worktree":
-			// Resolve symlinks to get canonical path
-			canonicalPath, err := filepath.EvalSymlinks(value)
-			if err != nil {
-				canonicalPath = value // Fallback to original if resolution fails
-			}
-			currentWorktree = &Worktree{
-				Path:   canonicalPath,
-				Locked: false,
-			}
-		case "branch":
-			if currentWorktree != nil {
-				// branch format: refs/heads/branch-name
-				branch := strings.TrimPrefix(value, "refs/heads/")
-				currentWorktree.Branch = branch
-			}
-		case "locked":
-			if currentWorktree != nil {
-				currentWorktree.Locked = true
-			}
+		if len(parts) >= 2 {
+			current = applyWorktreeLine(current, parts[0], parts[1])
 		}
 	}
 
-	// Handle last entry if file doesn't end with blank line
-	if currentWorktree != nil {
-		worktrees = append(worktrees, *currentWorktree)
+	if current != nil {
+		worktrees = append(worktrees, *current)
 	}
 
 	return worktrees
+}
+
+func applyWorktreeLine(wt *Worktree, key, value string) *Worktree {
+	switch key {
+	case "worktree":
+		canonicalPath, err := filepath.EvalSymlinks(value)
+		if err != nil {
+			canonicalPath = value
+		}
+		return &Worktree{Path: canonicalPath}
+	case "branch":
+		if wt != nil {
+			wt.Branch = strings.TrimPrefix(value, "refs/heads/")
+		}
+	case "locked":
+		if wt != nil {
+			wt.Locked = true
+		}
+	}
+	return wt
 }
 
 // RemoveWorktree removes the specified worktree using `git worktree remove`.
