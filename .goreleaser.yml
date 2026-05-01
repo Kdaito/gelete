@@ -89,7 +89,7 @@ homebrew_casks:
       owner: Kdaito
       name: homebrew-tap
       branch: main
-      token: "{{ .Env.GITHUB_TOKEN }}"
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
     homepage: https://github.com/Kdaito/gelete
     description: "Interactive git branch deletion tool with TUI"
     license: MIT
