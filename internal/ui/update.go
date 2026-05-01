@@ -11,6 +11,10 @@ import (
 // Update handles messages and updates the model state
 func (m AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case deletionResultMsg:
+		return AppModel(msg), nil
+	case forceDeletionResultMsg:
+		return AppModel(msg), nil
 	case tea.KeyMsg:
 		switch m.State {
 		case StateSelection:
@@ -19,6 +23,10 @@ func (m AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m.handleConfirmationInput(msg)
 		case StateForceConfirmation:
 			return m.handleForceConfirmationInput(msg)
+		case StateDeleting:
+			if msg.String() == "ctrl+c" {
+				return m, tea.Quit
+			}
 		case StateDone:
 			return m, tea.Quit
 		}
@@ -145,7 +153,7 @@ func (m AppModel) deleteBranches() tea.Msg {
 		m.State = StateDone
 	}
 
-	return m
+	return deletionResultMsg(m)
 }
 
 // forceDeleteBranches executes force deletion of unmerged branches
@@ -161,7 +169,7 @@ func (m AppModel) forceDeleteBranches() tea.Msg {
 	}
 
 	m.State = StateDone
-	return m
+	return forceDeletionResultMsg(m)
 }
 
 // isUnmergedError checks if an error message indicates unmerged changes

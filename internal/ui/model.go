@@ -54,6 +54,12 @@ type AppModel struct {
 	BranchWorktrees map[string]string
 }
 
+// deletionResultMsg is returned by the deleteBranches command
+type deletionResultMsg AppModel
+
+// forceDeletionResultMsg is returned by the forceDeleteBranches command
+type forceDeletionResultMsg AppModel
+
 // Init initializes the bubbletea model
 func (m AppModel) Init() tea.Cmd {
 	return nil
