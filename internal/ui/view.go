@@ -70,7 +70,8 @@ func (m AppModel) renderConfirmation() string {
 	selectedCount := 0
 	for _, branch := range m.Branches {
 		if m.Selected[branch] {
-			b.WriteString(WarningStyle.Render(fmt.Sprintf("  • %s\n", branch)))
+			b.WriteString(WarningStyle.Render(fmt.Sprintf("  • %s", branch)))
+			b.WriteString("\n")
 			selectedCount++
 		}
 	}
@@ -90,8 +91,10 @@ func (m AppModel) renderForceConfirmation() string {
 	b.WriteString("The following branches have unmerged changes:\n\n")
 
 	for branch, errMsg := range m.UnmergedBranches {
-		b.WriteString(WarningStyle.Render(fmt.Sprintf("  • %s\n", branch)))
-		b.WriteString(HelpStyle.Render(fmt.Sprintf("    %s\n", errMsg)))
+		b.WriteString(WarningStyle.Render(fmt.Sprintf("  • %s", branch)))
+		b.WriteString("\n")
+		b.WriteString(HelpStyle.Render(fmt.Sprintf("    %s", errMsg)))
+		b.WriteString("\n")
 	}
 
 	b.WriteString("\n")
@@ -127,7 +130,8 @@ func (m AppModel) renderDone() string {
 		b.WriteString(ErrorStyle.Render(fmt.Sprintf("✗ Failed to delete %d branch(es):", len(m.FailedBranches))))
 		b.WriteString("\n")
 		for branch, err := range m.FailedBranches {
-			b.WriteString(ErrorStyle.Render(fmt.Sprintf("  • %s: %s\n", branch, err)))
+			b.WriteString(ErrorStyle.Render(fmt.Sprintf("  • %s: %s", branch, err)))
+			b.WriteString("\n")
 		}
 	}
 
