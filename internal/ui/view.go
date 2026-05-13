@@ -70,7 +70,7 @@ func (m AppModel) renderConfirmation() string {
 	selectedCount := 0
 	for _, branch := range m.Branches {
 		if m.Selected[branch] {
-			b.WriteString(WarningStyle.Render(fmt.Sprintf("  • %s\n", branch)))
+			b.WriteString(WarningStyle.Render(fmt.Sprintf("  • %s", branch)) + "\n")
 			selectedCount++
 		}
 	}
@@ -90,8 +90,8 @@ func (m AppModel) renderForceConfirmation() string {
 	b.WriteString("The following branches have unmerged changes:\n\n")
 
 	for branch, errMsg := range m.UnmergedBranches {
-		b.WriteString(WarningStyle.Render(fmt.Sprintf("  • %s\n", branch)))
-		b.WriteString(HelpStyle.Render(fmt.Sprintf("    %s\n", errMsg)))
+		b.WriteString(WarningStyle.Render(fmt.Sprintf("  • %s", branch)) + "\n")
+		b.WriteString(HelpStyle.Render(fmt.Sprintf("    %s", errMsg)) + "\n")
 	}
 
 	b.WriteString("\n")
